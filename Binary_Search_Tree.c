@@ -8,10 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-//#include <conio.h>
 #include <string.h>
-
-#define MAXLEN 10 //Max number of chars
 
 /** Node structure
  * TODO Move to other file */
@@ -78,14 +75,11 @@ node * insert(node* node, char* key, Compare cmp){
 	return node; //return the node
 }
 
-typedef int (*Search)(node *, char *, Compare *);
+//typedef int (*Search)(node *, char *, Compare *);
 
 /** Search a node */
 node * search_node(node* root, char* key, Compare cmp){
-//	printf("Searching: %s\n", key);
 	int result = cmp(key, root->name);
-
-//	printf("RESULT: %d\n",result);
 
     if (root == NULL || result == 0){
     	printf("FOUND: %s\n",root->name);
@@ -103,64 +97,47 @@ node * search_node(node* root, char* key, Compare cmp){
     }
     return search_node(root->right, key, cmp);
 }
-// C function to search a given key in a given BST
-//struct node* search(struct node* root, int key)
-//{
-//    // Base Cases: root is null or key is present at root
-//    if (root == NULL || root->key == key)
-//       return root;
-//
-//    // Key is greater than root's key
-//    if (root->key < key)
-//       return search(root->right, key);
-//
-//    // Key is smaller than root's key
-//    return search(root->left, key);
-//}
 
-///** Remove a node */
-//node * remove(node* root, char* key, Compare cmp){
-//	int result; //Comparison result
-//
-//	//Base case
-//	if(root == NULL)
-//		return root;
-//
-//	result = cmp(key, root->name);
-//	//Remove recursive to the left
-//	if(result < 0)
-//		root->left = remove(root->left, key, cmp);
-//
-//	//Remove recursive to the right
-//	else if(result > 0)
-//		root->right = remove(root->right, key, cmp);
-//
-//	//The root is the node I am looking for
-//	//3 cases
-//	else{
-//
-//		//Case 1: node with at most one child
-//		if(root->left == NULL){
-//			node* temp = root->right;
-//			free(root);
-//			return temp;
-//		}
-//		else if (root->right == NULL){
-//			node* temp = root->left;
-//			free(root);
-//			return temp;
-//		}
-//
-//		//Case 2: node with 2 children
-//		node* temp = get_min_node(root->left);
-//
-//		root->name = temp->name;
-//
-//		root->right = remove(root->right, temp->name, cmp);
-//
-//	}
-//	return root;
-//}
+/** Remove a node. It is a modified version of search*/
+node * remove_node(node* root, char* key, Compare cmp){
+	int result;
+	result = cmp(key, root->name);
+
+	if(root == NULL ){
+    	printf("Deleted: %s\n",root->name);
+		return root;
+	}
+
+	else if(result<0){
+		if(root->left == NULL)
+    		printf("Can't Delete, ie was not found: %s\n", key);
+		root->left = remove_node(root->left, key, cmp);
+	}
+
+	else if(result>0){
+		if(root->right == NULL)
+    		printf("Can't Delete, ie was not found: %s\n", key);
+		root->right = remove_node(root->right, key, cmp);
+	}
+
+	//Found!
+	else if(result == 0){
+		if(root ->left == NULL){
+			printf("Deleted: %s\n",root->name);
+			node* temp = root->right;
+			free(root);
+			return temp;
+		}
+		else if(root ->right == NULL){
+			printf("Deleted: %s\n",root->name);
+			node* temp = root->left;
+			free(root);
+			return temp;
+		}
+	}
+
+	return root;
+}
 
 /* Traversals */
 /** In order traversal recursive */
@@ -175,19 +152,25 @@ void inorder(node* root){
 
 /** Display the menu (user interface) */
 void menu(){
-	printf("\nMenu\n");
-	printf("Press i to insert an element\n");
-	printf("Press p to print tree in order\n");
-	printf("Press q to quit\n");
+	printf("\nWelcome to ACME Solutions\n");
+	printf("Press i  1 to insert an element\n");
+	printf("Press s  2 to search an element\n");
+	printf("Press d  3 to delete an element\n");
+	printf("Press p  4 to print tree in order\n");
+	printf("Press q  0 to quit\n");
 }
 
+/** Main  */
 int main(){
 	//Create root
 	node* root = NULL;
-	Compare* cmp = (Compare)compare_string;
-	//char *name;
+	char a;
+	char name[40];
+	int start = 0;
+//	Compare *cmp = compare_string;
+//	Compare *cmp ;
 
-	//TEST
+	//TEST Compare without typedef
 	root = insert(root, "Henry",(Compare)compare_string);
 	root = insert(root, "Max",(Compare)compare_string);
 	root = insert(root, "50",(Compare)compare_string);
@@ -195,28 +178,63 @@ int main(){
 	root = insert(root, "HELLO",(Compare)compare_string);
 	root = insert(root, "40",(Compare)compare_string);
 	root = insert(root, "Sergio",(Compare)compare_string);
-	printf("TREE:\n");
-	inorder(root);
 	root = insert(root, "COMPA",(Compare)compare_string);
 
 	//SEARCH
 	printf("Searching HELLO\n");
-	search_node(root, "HELLO", cmp);
+	search_node(root, "HELLO", (Compare)compare_string);
 	printf("Searching NOT FOUND\n");
 	search_node(root, "NOT FOUND", (Compare)compare_string);
-	printf("TREE:\n");
-	inorder(root);
-	(Search)search_node;
-	//(Search)(root, "HELLO", (Compare)compare_string);
 
+	//REMOVE
+	root = remove_node(root, "HELLO", (Compare)compare_string);
+	root = insert(root, "Some",(Compare)compare_string);
+	root = insert(root, "1",(Compare)compare_string);
+	root = remove_node(root, "1", (Compare)compare_string);
+	root = remove_node(root, "COMPA", (Compare)compare_string);
+	root = remove_node(root, "Sergio", (Compare)compare_string);
 
-//	search(root, "NOT FOUND", (Compare)compare_string);
-//	search(root, "HELLO", (Compare)compare_string);
-//	search(root, "30", (Compare)compare_string);
-//
-//	printf("TREE:\n");
-//	inorder(root);
+	//display menu
 	menu();
+	beggin:
 
+	do { //Grab last char user input
+	    printf("Input an option: ");
+	    a = getchar();
+	} while(a!='q' && a!='i' && a!='s' && a!='p' && a!='d');
+
+	printf("\nEnter a name to work with: \n");
+	scanf("%s", name);
+	printf("Name: %s\n", name);
+
+	switch(a) {
+	    case 'i':
+	    	printf("Inserting...\n");
+	    	root = insert(root, name, (Compare)compare_string);
+	      break;
+	    case 'd':
+	    	printf("Removing...\n");
+	    	root = remove_node(root, name, (Compare)compare_string);
+	      break;
+	    case 's':
+	    	printf("Searching...\n");
+	    	search_node(root, name, (Compare)compare_string);
+	      break;
+	    case 'p':
+	    	printf("Display tree:\n");
+	    	inorder(root);
+	      break;
+	    case 'q':
+	    	printf("Exiting...\n");
+	    	start = 1;
+	      break;
+	}
+
+	while(start != 1)
+		goto beggin;
+//	}
+
+	printf("End..:\n");
+	//inorder(root);
 	return 0;
 }
